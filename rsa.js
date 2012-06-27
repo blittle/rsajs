@@ -14,192 +14,188 @@
 
 (function() {
 
-	"use strict";
+    "use strict";
 
-	var options, Crypt, cryptUtils;
+    var options, Crypt, cryptUtils;
 
-	options = {		
-		p 	: 47,
-		q 	: 59,		
-		e 	: 0,
-		d 	: 157
-	}
+    options = {        
+        p : 47,
+        q : 59,        
+        e : 0,
+        d : 157
+    }
 
-	cryptUtils = {
+    cryptUtils = {
 
-		/**
-		 * Generate numerical values from an input string. The conversion
-		 * simply uses the ascii code for each character in the string.
-		 *
-		 * @param s - The input string to convert
-		 * 
-		 * @return - An array of numerical values representing the string.
-		 */
-		 getNumeric: function(s) {
+        /**
+         * Generate numerical values from an input string. The conversion
+         * simply uses the ascii code for each character in the string.
+         *
+         * @param s - The input string to convert
+         * 
+         * @return - An array of numerical values representing the string.
+         */
+         getNumeric: function(s) {
 
-			var numeric = [];
+            var numeric = [];
 
-			for(var i=0, iLength = s.length; i < iLength; i++) {
-				numeric[i] = s.charCodeAt(i);
-			}
+            for(var i=0, iLength = s.length; i < iLength; i++) {
+                numeric[i] = s.charCodeAt(i);
+            }
 
-			return numeric;
-		},
-
-
-		/**
-		 * Given an array of integers, generate a string by converting each
-		 * integer into it's ascii character and appending it to a string.
-		 * 
-		 * @param _num - An array of numbers to convert to a string.
-		 *
-		 * @return - A converted string value
-		 */
-		getStringFromNumeric: function(_num) {
-
-			var str = "";
-
-			for(var i=0, iLength = _num.length; i < iLength; i++) {
-				str += String.fromCharCode(_num[i]);
-			};
-
-			return str;
-		},
+            return numeric;
+        },
 
 
-		/**
-		 * A function for generating the remainder of an integer raised to an exponent 
-		 * and divided by a number. The main cryptography algorithm.
-		 * 
-		 * Base formuala - (i^(_exponent)) % _mod
-		 *
-		 * @param i - the base integer that will be encrypted. Also the base exponent. 
-		 * @param _exponent - The actual exponent used in the above formula.
-		 * @_mod - The value to mod the exponent expression by.
-		 *
-	 	 * @return - The encrypted or decrypted value.
-		 */
-		modCrypt: function(i, _exponent, _mod) {
-			var te = _exponent.toString(2),
-				c  = 1;
+        /**
+         * Given an array of integers, generate a string by converting each
+         * integer into it's ascii character and appending it to a string.
+         * 
+         * @param _num - An array of numbers to convert to a string.
+         *
+         * @return - A converted string value
+         */
+        getStringFromNumeric: function(_num) {
 
-			for(var k=0; k < te.length; k++) {			
-				c = Math.pow(c,2) % _mod;			
-				if(te[k] === '1') {
-					c = (c * i) % _mod;
-				} 
-			}
+            var str = "";
 
-			return c;		
-		},
+            for(var i=0, iLength = _num.length; i < iLength; i++) {
+                str += String.fromCharCode(_num[i]);
+            };
+
+            return str;
+        },
 
 
-		/**
-		 * Encrypt a given value. Proxy to the modCrypt function
-		 */
-		encrypt: function(i) {	
-			if(!options.e) {
-				console.error('Cannot encrypt until the encryption exponent is calculated');
-				return;
-			}
-			return this.modCrypt(i, options.e, options.n);
-		},
+        /**
+         * A function for generating the remainder of an integer raised to an exponent 
+         * and divided by a number. The main cryptography algorithm.
+         * 
+         * Base formuala - (i^(_exponent)) % _mod
+         *
+         * @param i - the base integer that will be encrypted. Also the base exponent. 
+         * @param _exponent - The actual exponent used in the above formula.
+         * @_mod - The value to mod the exponent expression by.
+         *
+          * @return - The encrypted or decrypted value.
+         */
+        modCrypt: function(i, _exponent, _mod) {
+            var te = _exponent.toString(2),
+                c  = 1;
+
+            for(var k=0; k < te.length; k++) {            
+                c = Math.pow(c,2) % _mod;            
+                if(te[k] === '1') {
+                    c = (c * i) % _mod;
+                } 
+            }
+
+            return c;        
+        },
 
 
-		/**
-		 * Decrypt a given value. Proxy to the modCrypt function
-		 */
-		decrypt: function(i) {
-			return this.modCrypt(i, options.d, options.n);
-		},
+        /**
+         * Encrypt a given value. Proxy to the modCrypt function
+         */
+        encrypt: function(i) {    
+            if(!options.e) {
+                console.error('Cannot encrypt until the encryption exponent is calculated');
+                return;
+            }
+            return this.modCrypt(i, options.e, options.n);
+        },
 
 
-		/**
-		 * Calculate the encryption exponent from the given initial parameters
-		 *
-		 */
-		calcDecrypt: function(_p, _q, _d) {
-			var x = [ (_p-1)*(_q-1), _d ],
-				a = 1,
-				b = 0,
-				count = 1;
-
-			while(true) {
-				x[count+1] = x[count-1] % x[count];
-				
-				if(x[count+1] === 1) {
-					break;
-				}
-
-				count++;
-			}
-
-			while(true) {
-
-				b = ( x[x.length-1] - ( a * x[0]) ) / x[1];
-
-				if(Math.ceil(b) - b !== 0) {
-					a--;
-				} else {
-					return b;
-				}
-			}
-		}
-
-	};		
+        /**
+         * Decrypt a given value. Proxy to the modCrypt function
+         */
+        decrypt: function(i) {
+            return this.modCrypt(i, options.d, options.n);
+        },
 
 
-	/**
-	 * Constructor for a new JSCrypt object. Pass in an options object which may include:
-	 *
-	 * p - A large prime number
-	 * q - A large prime number 	 
-	 * d - A prime number bigger than either p or q
-	 * 
-	 */
-	Crypt = function(_options) {
-		for(var opt in _options) {
-			if(_options.hasOwnProperty(opt)) {
-				options[opt] = _options[opt];
-			}
-		}
+        /**
+         * Calculate the encryption exponent from the given initial parameters
+         *
+         */
+        calcDecrypt: function(_p, _q, _d) {
+            var x = [ (_p-1)*(_q-1), _d ],
+                a = 1,
+                b = 0,
+                count = 1;
 
-		options.n = options.q * options.p;
+            while(true) {
+                x[count+1] = x[count-1] % x[count];
+                
+                if(x[count+1] === 1) {
+                    break;
+                }
 
-		options.e = cryptUtils.calcDecrypt(options.p, options.q, options.d);
-	};
+                count++;
+            }
 
-	Crypt.prototype = {
+            while(true) {
 
-		encrypt: function(_string) {
-			var numeric 		= cryptUtils.getNumeric(_string),
-				encyptedNumeric = [];
+                b = ( x[x.length-1] - ( a * x[0]) ) / x[1];
 
-			for(var i=0, iLength = numeric.length; i < iLength; i++) {
-				encyptedNumeric[i] = cryptUtils.encrypt(numeric[i]);
-			}					
+                if(Math.ceil(b) - b !== 0) {
+                    a--;
+                } else {
+                    return b;
+                }
+            }
+        }
 
-			return cryptUtils.getStringFromNumeric(encyptedNumeric);
-		},
+    };        
 
 
-		decrypt: function(_string) {
-			var numeric 		 = cryptUtils.getNumeric(_string),
-				decryptedNumeric = [];
+    /**
+     * Constructor for a new JSCrypt object. Pass in an options object which may include:
+     *
+     * p - A large prime number
+     * q - A large prime number      
+     * d - A prime number bigger than either p or q
+     * 
+     */
+    Crypt = function(_options) {
+        for(var opt in _options) {
+            if(_options.hasOwnProperty(opt)) {
+                options[opt] = _options[opt];
+            }
+        }
 
-			for(var i=0, iLength=numeric.length; i < iLength; i++) {
-				decryptedNumeric[i] = cryptUtils.decrypt(numeric[i]);
-			}					
+        options.n = options.q * options.p;
 
-			return cryptUtils.getStringFromNumeric(decryptedNumeric);
-		}
+        options.e = cryptUtils.calcDecrypt(options.p, options.q, options.d);
+    };
 
-	};
+    Crypt.prototype = {
 
-	module.exports = Crypt;
+        encrypt: function(_string) {
+            var numeric         = cryptUtils.getNumeric(_string),
+                encyptedNumeric = [];
 
-	// var testCrypt = new Crypt();
+            for(var i=0, iLength = numeric.length; i < iLength; i++) {
+                encyptedNumeric[i] = cryptUtils.encrypt(numeric[i]);
+            }                    
 
-	// console.log( testCrypt.decrypt(testCrypt.encrypt("hello")) );
+            return cryptUtils.getStringFromNumeric(encyptedNumeric);
+        },
+
+
+        decrypt: function(_string) {
+            var numeric          = cryptUtils.getNumeric(_string),
+                decryptedNumeric = [];
+
+            for(var i=0, iLength=numeric.length; i < iLength; i++) {
+                decryptedNumeric[i] = cryptUtils.decrypt(numeric[i]);
+            }                    
+
+            return cryptUtils.getStringFromNumeric(decryptedNumeric);
+        }
+
+    };
+
+    module.exports = Crypt;
 
 }());
