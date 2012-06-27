@@ -1,6 +1,6 @@
 var RSA = require('./rsa');
 
-var testRSA = new RSA(),
+var testRSA   = new RSA(),
     msg       = 'Hello whats up dawg how are you?';        
 
 var encrypted = testRSA.encrypt(msg);
