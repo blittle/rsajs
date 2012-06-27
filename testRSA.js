@@ -1,10 +1,10 @@
-var Crypt = require('./crypt');
+var RSA = require('./rsa');
 
-var testCrypt = new Crypt(),
+var testRSA = new RSA(),
     msg       = 'Hello whats up dawg how are you?';        
 
-var encrypted = testCrypt.encrypt(msg);
-var decrypted = testCrypt.decrypt(encrypted);
+var encrypted = testRSA.encrypt(msg);
+var decrypted = testRSA.decrypt(encrypted);
 
 console.log('encrypting: ' + msg);
 console.log('encrypted : ' + encrypted);

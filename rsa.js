@@ -1,10 +1,10 @@
 /**
  *
- * JSCrypt - Author Bret Little
+ * RSA.js - Author Bret Little
  *
  * A javascript implementation of the public-key cryptography algorithm 
  * described in the paper: "A Method for Obtaining Digital Signatures and
- * Public-Key Cryptosystems" - Available at: 
+ * Public-Key RSAosystems" - Available at: 
  *
  * people.csail.mit.edu/rivest/Rsapaper.pdf
  * 
@@ -16,7 +16,7 @@
 
     "use strict";
 
-    var options, Crypt, cryptUtils;
+    var options, RSA, rsaUtils;
 
     options = {        
         p : 47,
@@ -25,7 +25,7 @@
         d : 157
     }
 
-    cryptUtils = {
+    rsaUtils = {
 
         /**
          * Generate numerical values from an input string. The conversion
@@ -79,7 +79,7 @@
          *
           * @return - The encrypted or decrypted value.
          */
-        modCrypt: function(i, _exponent, _mod) {
+        modRSA: function(i, _exponent, _mod) {
             var te = _exponent.toString(2),
                 c  = 1;
 
@@ -95,22 +95,22 @@
 
 
         /**
-         * Encrypt a given value. Proxy to the modCrypt function
+         * Encrypt a given value. Proxy to the modRSA function
          */
         encrypt: function(i) {    
             if(!options.e) {
                 console.error('Cannot encrypt until the encryption exponent is calculated');
                 return;
             }
-            return this.modCrypt(i, options.e, options.n);
+            return this.modRSA(i, options.e, options.n);
         },
 
 
         /**
-         * Decrypt a given value. Proxy to the modCrypt function
+         * Decrypt a given value. Proxy to the modRSA function
          */
         decrypt: function(i) {
-            return this.modCrypt(i, options.d, options.n);
+            return this.modRSA(i, options.d, options.n);
         },
 
 
@@ -150,14 +150,14 @@
 
 
     /**
-     * Constructor for a new JSCrypt object. Pass in an options object which may include:
+     * Constructor for a new JSRSA object. Pass in an options object which may include:
      *
      * p - A large prime number
      * q - A large prime number      
      * d - A prime number bigger than either p or q
      * 
      */
-    Crypt = function(_options) {
+    RSA = function(_options) {
         for(var opt in _options) {
             if(_options.hasOwnProperty(opt)) {
                 options[opt] = _options[opt];
@@ -166,36 +166,36 @@
 
         options.n = options.q * options.p;
 
-        options.e = cryptUtils.calcDecrypt(options.p, options.q, options.d);
+        options.e = rsaUtils.calcDecrypt(options.p, options.q, options.d);
     };
 
-    Crypt.prototype = {
+    RSA.prototype = {
 
         encrypt: function(_string) {
-            var numeric         = cryptUtils.getNumeric(_string),
+            var numeric         = rsaUtils.getNumeric(_string),
                 encyptedNumeric = [];
 
             for(var i=0, iLength = numeric.length; i < iLength; i++) {
-                encyptedNumeric[i] = cryptUtils.encrypt(numeric[i]);
+                encyptedNumeric[i] = rsaUtils.encrypt(numeric[i]);
             }                    
 
-            return cryptUtils.getStringFromNumeric(encyptedNumeric);
+            return rsaUtils.getStringFromNumeric(encyptedNumeric);
         },
 
 
         decrypt: function(_string) {
-            var numeric          = cryptUtils.getNumeric(_string),
+            var numeric          = rsaUtils.getNumeric(_string),
                 decryptedNumeric = [];
 
             for(var i=0, iLength=numeric.length; i < iLength; i++) {
-                decryptedNumeric[i] = cryptUtils.decrypt(numeric[i]);
+                decryptedNumeric[i] = rsaUtils.decrypt(numeric[i]);
             }                    
 
-            return cryptUtils.getStringFromNumeric(decryptedNumeric);
+            return rsaUtils.getStringFromNumeric(decryptedNumeric);
         }
 
     };
 
-    module.exports = Crypt;
+    module.exports = RSA;
 
 }());
