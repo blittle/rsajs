@@ -19,10 +19,10 @@
     var options, RSA, rsaUtils;
 
     options = {        
-        p : 47,
-        q : 59,        
+        p : 257,
+        q : 281,        
         e : 0,
-        d : 157
+        d : 397 
     }
 
     rsaUtils = {
@@ -37,7 +37,7 @@
          */
          getNumeric: function(s) {
 
-            var numeric = [];
+            var numeric = new Uint32Array(s.length);
 
             for(var i=0, iLength = s.length; i < iLength; i++) {
                 numeric[i] = s.charCodeAt(i);
@@ -83,7 +83,8 @@
             var te = _exponent.toString(2),
                 c  = 1;
 
-            for(var k=0; k < te.length; k++) {            
+            for(var k=0; k < te.length; k++) {           
+
                 c = Math.pow(c,2) % _mod;            
                 if(te[k] === '1') {
                     c = (c * i) % _mod;
@@ -173,7 +174,7 @@
 
         encrypt: function(_string) {
             var numeric         = rsaUtils.getNumeric(_string),
-                encyptedNumeric = [];
+                encyptedNumeric = new Uint32Array(_string.length);
 
             for(var i=0, iLength = numeric.length; i < iLength; i++) {
                 encyptedNumeric[i] = rsaUtils.encrypt(numeric[i]);
@@ -185,7 +186,7 @@
 
         decrypt: function(_string) {
             var numeric          = rsaUtils.getNumeric(_string),
-                decryptedNumeric = [];
+                decryptedNumeric = new Uint32Array(_string.length);
 
             for(var i=0, iLength=numeric.length; i < iLength; i++) {
                 decryptedNumeric[i] = rsaUtils.decrypt(numeric[i]);
